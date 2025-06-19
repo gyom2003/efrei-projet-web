@@ -1,0 +1,47 @@
+version: '3.9'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=user
+      - RABBITMQ_DEFAULT_PASS=password
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.docker
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - ./backend/prisma/dev.db:/app/prisma/dev.db
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    env_file:
+      - .env.docker
+    depends_on:
+      - backend
+
+  prisma:
+    build: ./backend
+    command: npx prisma studio --port 5555
+    ports:
+      - "5555:5555"
+    depends_on:
+      - backend
+    volumes:
+      - ./backend/prisma/dev.db:/app/prisma/dev.db
