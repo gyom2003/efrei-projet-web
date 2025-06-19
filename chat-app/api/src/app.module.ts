@@ -12,6 +12,7 @@ import { RabbitMQService } from '../rabbitmq/rabbitmq.service';
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: true,
+            installSubscriptionHandlers: true,
     }),
     RabbitMQModule,
   ],
