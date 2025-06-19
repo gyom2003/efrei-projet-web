@@ -1,0 +1,6 @@
+# Enforce LF line endings for JS/TS files
+*.ts text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.tsx text eol=lf
+*.jsx text eol=lf
