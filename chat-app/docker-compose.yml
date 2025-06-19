@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672" # interface web
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+
+  api:
+    build: ./api
+    ports:
+      - "3000:3000"
+    depends_on:
+      - rabbitmq
+
+  worker:
+    build: ./worker
+    depends_on:
+      - rabbitmq
