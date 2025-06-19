@@ -1,38 +1,46 @@
-import { Resolver, Query, Mutation, Args, ObjectType, Field } from '@nestjs/graphql';
+import { Resolver, Mutation, Args, Subscription, Query } from '@nestjs/graphql';
+import { PubSub } from 'graphql-subscriptions';
+import { Message } from './message.model';
 import { RabbitMQService } from '../rabbitmq/rabbitmq.service';
 
-
-
-@ObjectType()
-export class Message {
-  @Field()
-  conversationId: string;
-
-  @Field()
-  content: string;
-
-  constructor(conversationId: string, content: string) {
-    this.conversationId = conversationId;
-    this.content = content;
-  }
-}
+const pubSub = new PubSub();
 
 @Resolver(() => Message)
 export class MessageResolver {
   constructor(private readonly rabbitmqService: RabbitMQService) {}
 
   @Query(() => String)
-  hello() {
-    return 'API GraphQL fonctionne !';
+  _empty() {
+    return 'ok';
   }
 
-  @Mutation(() => Message)
+  @Mutation(() => Boolean)
   async sendMessage(
     @Args('conversationId') conversationId: string,
     @Args('content') content: string,
-  ): Promise<Message> {
-    const payload = { conversationId, content, authorId: 'mock-user' };
+  ): Promise<boolean> {
+    const payload = {
+      conversationId,
+      content,
+      authorId: 'mock-user',
+      timestamp: Date.now(),
+    };
+
+    // Envoie vers RabbitMQ (par ex. pour traitement en Worker)
     await this.rabbitmqService.sendMessage('message_send', payload);
-    return new Message(conversationId, content);
+
+    // Publie localement pour la subscription GraphQL
+    await pubSub.publish('message_sent', payload);
+
+    return true;
+  }
+
+  @Subscription(() => Message, {
+    filter: (payload, variables) =>
+      payload.conversationId === variables.conversationId,
+    resolve: (value) => value,
+  })
+  onMessageSent(@Args('conversationId') conversationId: string) {
+    return pubSub.asyncIterableIterator('message_sent');
   }
 }
