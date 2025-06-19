@@ -1,4 +1,5 @@
-import React from "react";
+import { useEffect, useState } from "react";
+import { gql, useSubscription, useMutation } from "@apollo/client";
 
 type Message = {
   id: string;
@@ -11,18 +12,49 @@ type Props = {
   conversationId: string | null;
 };
 
-const Messages: Record<string, Message[]> = {
-  "1": [
-    { id: "m1", sender: "Alice", text: "Salut, comment ça va ?", time: "10:00" },
-    { id: "m2", sender: "Moi", text: "Ça va bien, merci !", time: "10:02" },
-  ],
-  "2": [
-    { id: "m3", sender: "Bob", text: "Tu as fini le projet ?", time: "09:30" },
-    { id: "m4", sender: "Moi", text: "Presque, je finalise.", time: "09:45" },
-  ],
-};
+const ON_MESSAGE_SENT = gql`
+  subscription OnMessageSent($conversationId: String!) {
+    onMessageSent(conversationId: $conversationId) {
+      conversationId
+      content
+      authorId
+      timestamp
+    }
+  }
+`;
+
+const SEND_MESSAGE = gql`
+  mutation SendMessage($conversationId: String!, $content: String!) {
+    sendMessage(conversationId: $conversationId, content: $content)
+  }
+`;
 
 export default function Chat({ conversationId }: Props) {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const { data } = useSubscription(ON_MESSAGE_SENT, {
+    variables: { conversationId: conversationId ?? "" },
+    skip: !conversationId,
+  });
+
+  console.log(conversationId)
+  const [sendMessage] = useMutation(SEND_MESSAGE);
+
+  // Dès qu'on reçoit un nouveau message via subscription, on l'ajoute à la liste
+  useEffect(() => {
+    if (data?.onMessageSent) {
+      const msg = data.onMessageSent;
+      setMessages((msgs) => [
+        ...msgs,
+        {
+          id: msg.timestamp.toString(),
+          sender: msg.authorId,
+          text: msg.content,
+          time: new Date(msg.timestamp).toLocaleTimeString(),
+        },
+      ]);
+    }
+  }, [data]);
+
   if (!conversationId) {
     return (
       <div style={{ flex: 1, padding: 20, color: "#666", fontStyle: "italic" }}>
@@ -31,7 +63,13 @@ export default function Chat({ conversationId }: Props) {
     );
   }
 
-  const messages = Messages[conversationId] || [];
+  // Envoyer un message exemple
+  const handleSendMessage = async () => {
+    const content = prompt("Tape ton message");
+    if (content && conversationId) {
+      await sendMessage({ variables: { conversationId, content } });
+    }
+  };
 
   return (
     <div
@@ -45,7 +83,9 @@ export default function Chat({ conversationId }: Props) {
       }}
     >
       {messages.length === 0 ? (
-        <div style={{ color: "#666", fontStyle: "italic" }}>Aucun message dans cette conversation.</div>
+        <div style={{ color: "#666", fontStyle: "italic" }}>
+          Aucun message dans cette conversation.
+        </div>
       ) : (
         messages.map(({ id, sender, text, time }) => (
           <div
@@ -58,16 +98,25 @@ export default function Chat({ conversationId }: Props) {
               padding: 10,
               borderRadius: 8,
               boxShadow: "0 1px 1px rgba(0,0,0,0.1)",
+              color: sender === "Moi" ? "white" : "black",
             }}
           >
             <div style={{ fontWeight: "bold", marginBottom: 4 }}>{sender}</div>
             <div>{text}</div>
-            <div style={{ fontSize: 10, color: "#0000FF", textAlign: "right", marginTop: 4 }}>
+            <div
+              style={{
+                fontSize: 10,
+                color: "#0000FF",
+                textAlign: "right",
+                marginTop: 4,
+              }}
+            >
               {time}
             </div>
           </div>
         ))
       )}
+      <button onClick={handleSendMessage}>Envoyer un message</button>
     </div>
   );
 }
