@@ -9,7 +9,7 @@ async function bootstrap() {
       transport: Transport.RMQ,
       options: {
         urls: ['amqp://user:password@localhost:5672'],
-        queue: 'chat_queue',
+        queue: 'message_send',
         queueOptions: {
           durable: false,
         },
