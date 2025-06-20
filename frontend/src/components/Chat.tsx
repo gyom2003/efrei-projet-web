@@ -1,36 +1,60 @@
 import React, { useEffect, useState } from "react";
+import { gql, useMutation, useSubscription } from "@apollo/client";
+import { v4 as uuidv4 } from "uuid";
+
+const SEND_MESSAGE = gql`
+  mutation SendMessage($conversationId: String!, $content: String!) {
+    sendMessage(conversationId: $conversationId, content: $content)
+  }
+`;
+
+const MESSAGE_SENT = gql`
+  subscription OnMessageSent($conversationId: String!) {
+    onMessageSent(conversationId: $conversationId) {
+      id
+      conversationId
+      content
+      authorId
+      timestamp
+    }
+  }
+`;
 
 type Message = {
   id: string;
-  sender: string;
-  text: string;
-  time: string;
+  conversationId: string;
+  content: string;
+  authorId: string;
+  timestamp: number;
 };
 
-type Props = {
-  conversationId: string | null;
-  initialMessages: Message[];
-};
-
-export default function Chat({ conversationId, initialMessages }: Props) {
-  const [messages, setMessages] = useState<Message[]>(initialMessages);
+export default function Chat() {
+  const [conversationId] = useState<string>(() => uuidv4()); // Génère un ID unique
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
 
-  useEffect(() => {
-    setMessages(initialMessages);
-  }, [initialMessages]);
+  const [sendMessage] = useMutation(SEND_MESSAGE);
+  const { data } = useSubscription(MESSAGE_SENT, {
+    variables: { conversationId },
+  });
 
-  const handleSendMessage = () => {
+  // Réception des nouveaux messages via subscription
+  useEffect(() => {
+    if (data?.onMessageSent) {
+      setMessages((prev) => [...prev, data.onMessageSent]);
+    }
+  }, [data]);
+
+  const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
 
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      sender: "Moi",
-      text: inputValue,
-      time: new Date().toLocaleTimeString(),
-    };
+    await sendMessage({
+      variables: {
+        conversationId,
+        content: inputValue,
+      },
+    });
 
-    setMessages((prev) => [...prev, newMessage]);
     setInputValue("");
   };
 
@@ -46,6 +70,10 @@ export default function Chat({ conversationId, initialMessages }: Props) {
         boxSizing: "border-box",
       }}
     >
+      <h3 style={{ marginBottom: 20 }}>
+        Conversation ID : <code>{conversationId}</code>
+      </h3>
+
       <div
         style={{
           flex: 1,
@@ -58,38 +86,42 @@ export default function Chat({ conversationId, initialMessages }: Props) {
             Aucun message dans cette conversation.
           </div>
         ) : (
-          messages.map(({ id, sender, text, time }) => (
+          messages.map((msg) => (
             <div
-              key={id}
+              key={msg.id}
               style={{
                 display: "flex",
                 flexDirection: "column",
-                alignItems: sender === "Moi" ? "flex-end" : "flex-start",
+                alignItems:
+                  msg.authorId === "mock-user" ? "flex-end" : "flex-start",
                 marginBottom: 12,
               }}
             >
-              <div style={{ fontWeight: "bold", marginBottom: 4 }}>{sender}</div>
-              <div
-                style={{
-                  backgroundColor: sender === "Moi" ? "#25D366" : "#D3D3D3",
-                  padding: "10px 14px",
-                  borderRadius: 8,
-                  maxWidth: "70%",
-                 color : "black",
-                  fontSize: 14,
-                }}
-              >
-                {text}
+              <div style={{ fontWeight: "bold", marginBottom: 4 }}>
+                {msg.authorId === "mock-user" ? "Moi" : msg.authorId}
               </div>
               <div
                 style={{
-                   fontSize: 12,
-                    textAlign: "right",
-                    color: "#000000",
-                    marginTop: 4,
+                  backgroundColor:
+                    msg.authorId === "mock-user" ? "#25D366" : "#D3D3D3",
+                  padding: "10px 14px",
+                  borderRadius: 8,
+                  maxWidth: "70%",
+                  color: "black",
+                  fontSize: 14,
                 }}
               >
-                {time}
+                {msg.content}
+              </div>
+              <div
+                style={{
+                  fontSize: 12,
+                  textAlign: "right",
+                  color: "#000000",
+                  marginTop: 4,
+                }}
+              >
+                {new Date(msg.timestamp).toLocaleTimeString()}
               </div>
             </div>
           ))

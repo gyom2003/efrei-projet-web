@@ -6,6 +6,11 @@ async function bootstrap() {
   // ➤ Crée d'abord l'application HTTP (avec GraphQL)
   const app = await NestFactory.create(AppModule);
 
+  app.enableCors({
+    origin: 'http://localhost:5173',
+    credentials: true,
+  });
+
   // ➤ Connecte ensuite le microservice RabbitMQ
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,
