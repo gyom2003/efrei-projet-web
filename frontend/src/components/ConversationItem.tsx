@@ -1,5 +1,3 @@
-import React from "react";
-
 type Message = {
   id: string;
   sender: string;
@@ -32,7 +30,7 @@ export default function ConversationItem({
   selected,
   onClick,
 }: Props) {
-  const last = conversation.messages.at(-1);
+  const last = conversation.messages[conversation.messages.length - 1];
 
   return (
     <li
@@ -81,7 +79,10 @@ export default function ConversationItem({
           }}
         >
           {last
-            ? `${last.sender === "Moi" ? "Vous: " : ""}${last.text.slice(0, 50)}`
+            ? `${last.sender === "Moi" ? "Vous: " : ""}${last.text.slice(
+                0,
+                50
+              )}`
             : "Aucun message"}
         </div>
       </div>
