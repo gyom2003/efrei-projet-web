@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 type Message = {
   id: string;
@@ -12,7 +12,7 @@ type Props = {
   initialMessages: Message[];
 };
 
-export default function Chat({ conversationId, initialMessages }: Props) {
+export default function Chat({ initialMessages }: Props) {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [inputValue, setInputValue] = useState("");
 
@@ -68,14 +68,16 @@ export default function Chat({ conversationId, initialMessages }: Props) {
                 marginBottom: 12,
               }}
             >
-              <div style={{ fontWeight: "bold", marginBottom: 4 }}>{sender}</div>
+              <div style={{ fontWeight: "bold", marginBottom: 4 }}>
+                {sender}
+              </div>
               <div
                 style={{
                   backgroundColor: sender === "Moi" ? "#25D366" : "#D3D3D3",
                   padding: "10px 14px",
                   borderRadius: 8,
                   maxWidth: "70%",
-                 color : "black",
+                  color: "black",
                   fontSize: 14,
                 }}
               >
@@ -83,10 +85,10 @@ export default function Chat({ conversationId, initialMessages }: Props) {
               </div>
               <div
                 style={{
-                   fontSize: 12,
-                    textAlign: "right",
-                    color: "#000000",
-                    marginTop: 4,
+                  fontSize: 12,
+                  textAlign: "right",
+                  color: "#000000",
+                  marginTop: 4,
                 }}
               >
                 {time}

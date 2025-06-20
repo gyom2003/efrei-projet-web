@@ -1,5 +1,3 @@
-import React from "react";
-
 type ProfilProps = {
   name: string;
   bio?: string;

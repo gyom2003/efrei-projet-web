@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import ListConversation from "./ListConversation";
 import Chat from "./Chat";
 import Profil from "./Profil";
@@ -55,7 +55,8 @@ const conversations: Conversation[] = [
 ];
 
 export default function Messenger() {
-  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
+  const [selectedConversation, setSelectedConversation] =
+    useState<Conversation | null>(null);
 
   return (
     <div
