@@ -1,8 +1,8 @@
-import { ObjectType, Field, Float } from '@nestjs/graphql';
+import { ObjectType, Field, ID, Float } from '@nestjs/graphql';
 
 @ObjectType()
 export class Message {
-  @Field()
+  @Field(() => ID)
   id: string;
 
   @Field()
