@@ -1,38 +1,71 @@
+import { useQuery, useMutation, useSubscription } from "@apollo/client";
 import { useEffect, useState } from "react";
+import {
+  GET_MESSAGES,
+  SEND_MESSAGE,
+  ON_MESSAGE_SENT,
+} from "../graphql/queries";
 
 type Message = {
   id: string;
-  sender: string;
-  text: string;
-  time: string;
+  authorId: string;
+  content: string;
+  timestamp: string;
 };
 
 type Props = {
-  conversationId: string | null;
-  initialMessages: Message[];
+  conversationId: string;
 };
 
-export default function Chat({ initialMessages }: Props) {
-  const [messages, setMessages] = useState<Message[]>(initialMessages);
+export default function Chat({ conversationId }: Props) {
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
 
+  // Query pour récupérer les anciens messages
+  const { data, loading, error } = useQuery(GET_MESSAGES, {
+    variables: { conversationId },
+    skip: !conversationId,
+    fetchPolicy: "network-only",
+  });
+
+  // Mutation pour envoyer un message
+  const [sendMessage] = useMutation(SEND_MESSAGE);
+
+  // Subscription pour recevoir les nouveaux messages
+  const { data: subscriptionData } = useSubscription(ON_MESSAGE_SENT, {
+    variables: { conversationId },
+    skip: !conversationId,
+  });
+
+  // Mise à jour de la liste des messages lors du chargement initial
   useEffect(() => {
-    setMessages(initialMessages);
-  }, [initialMessages]);
+    if (data?.messages) {
+      setMessages(data.messages);
+    }
+  }, [data]);
 
-  const handleSendMessage = () => {
+  // Ajout des messages reçus par subscription
+  useEffect(() => {
+    if (subscriptionData?.onMessageSent) {
+      setMessages((prev) => [...prev, subscriptionData.onMessageSent]);
+    }
+  }, [subscriptionData]);
+
+  // Envoi d'un message
+  const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
-
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      sender: "Moi",
-      text: inputValue,
-      time: new Date().toLocaleTimeString(),
-    };
-
-    setMessages((prev) => [...prev, newMessage]);
-    setInputValue("");
+    try {
+      await sendMessage({
+        variables: { conversationId, content: inputValue.trim() },
+      });
+      setInputValue("");
+    } catch (error) {
+      console.error("Erreur envoi message:", error);
+    }
   };
+
+  if (loading) return <div>Chargement des messages...</div>;
+  if (error) return <div>Erreur : {error.message}</div>;
 
   return (
     <div
@@ -58,22 +91,22 @@ export default function Chat({ initialMessages }: Props) {
             Aucun message dans cette conversation.
           </div>
         ) : (
-          messages.map(({ id, sender, text, time }) => (
+          messages.map(({ id, authorId, content, timestamp }) => (
             <div
               key={id}
               style={{
                 display: "flex",
                 flexDirection: "column",
-                alignItems: sender === "Moi" ? "flex-end" : "flex-start",
+                alignItems: authorId === "Moi" ? "flex-end" : "flex-start",
                 marginBottom: 12,
               }}
             >
               <div style={{ fontWeight: "bold", marginBottom: 4 }}>
-                {sender}
+                {authorId === "Moi" ? "Moi" : authorId}
               </div>
               <div
                 style={{
-                  backgroundColor: sender === "Moi" ? "#25D366" : "#D3D3D3",
+                  backgroundColor: authorId === "Moi" ? "#25D366" : "#D3D3D3",
                   padding: "10px 14px",
                   borderRadius: 8,
                   maxWidth: "70%",
@@ -81,7 +114,7 @@ export default function Chat({ initialMessages }: Props) {
                   fontSize: 14,
                 }}
               >
-                {text}
+                {content}
               </div>
               <div
                 style={{
@@ -91,7 +124,7 @@ export default function Chat({ initialMessages }: Props) {
                   marginTop: 4,
                 }}
               >
-                {time}
+                {new Date(timestamp).toLocaleTimeString()}
               </div>
             </div>
           ))

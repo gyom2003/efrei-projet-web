@@ -1,16 +1,21 @@
-// src/rabbitmq/rabbitmq.service.ts
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { ClientProxy, ClientProxyFactory, Transport } from '@nestjs/microservices';
 
 @Injectable()
 export class RabbitMQService {
   private client: ClientProxy;
 
-  constructor() {
+  constructor(private readonly configService: ConfigService) {
+    const rabbitUrl = this.configService.get<string>('RABBITMQ_URL');
+    if (!rabbitUrl) {
+      throw new Error('RABBITMQ_URL is not defined');
+    }
+
     this.client = ClientProxyFactory.create({
       transport: Transport.RMQ,
       options: {
-        urls: ['amqp://user:password@localhost:5672'],
+        urls: [rabbitUrl],
         queue: 'message_send',
         queueOptions: {
           durable: false,

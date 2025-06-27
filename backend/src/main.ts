@@ -1,16 +1,27 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
-  // ➤ Crée d'abord l'application HTTP (avec GraphQL)
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
+  const frontendOrigin = configService.get<string>('FRONTEND_URL');
 
-  // ➤ Connecte ensuite le microservice RabbitMQ
+  app.enableCors({
+    origin: frontendOrigin,
+    credentials: true,
+  });
+
+  const rabbitUrl = configService.get<string>('RABBITMQ_URL');
+  if (!rabbitUrl) {
+    throw new Error('RABBITMQ_URL is not defined');
+  }
+
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,
     options: {
-      urls: ['amqp://user:password@localhost:5672'],
+      urls: [rabbitUrl],
       queue: 'message_send',
       queueOptions: {
         durable: false,
@@ -18,10 +29,10 @@ async function bootstrap() {
     },
   });
 
-  // ➤ Lance les deux
   await app.startAllMicroservices();
   await app.listen(3000);
 
   console.log(`🚀 HTTP server ready at http://localhost:3000/graphql`);
+  console.log(`🚀 RabbitMQ connected at ${rabbitUrl}`);
 }
 bootstrap();
