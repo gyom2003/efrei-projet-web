@@ -1,18 +1,30 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    ClientsModule.register([
+    ConfigModule.forRoot({ isGlobal: true }), // 👈 ajoute cette ligne
+    ClientsModule.registerAsync([
       {
+        imports: [ConfigModule],
+        inject: [ConfigService],
         name: 'CHAT_SERVICE',
-        transport: Transport.RMQ,
-        options: {
-          urls: ['amqp://user:password@localhost:5672'],
-          queue: 'chat_queue',
-          queueOptions: {
-            durable: false,
-          },
+        useFactory: (configService: ConfigService) => {
+          const url = configService.get<string>('RABBITMQ_URL');
+          if (!url) {
+            throw new Error('RABBITMQ_URL is not defined');
+          }
+          return {
+            transport: Transport.RMQ,
+            options: {
+              urls: [url],
+              queue: 'chat_queue',
+              queueOptions: {
+                durable: false,
+              },
+            },
+          };
         },
       },
     ]),
