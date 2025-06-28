@@ -1,4 +1,3 @@
-// src/message/message.service.ts
 import { Injectable, Inject } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { PubSub } from 'graphql-subscriptions';
