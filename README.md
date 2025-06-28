@@ -14,7 +14,6 @@ docker-compose up -d
 
 ```cmd
 docker-compose up -d rabbitmq
-npm i 
 ```
 2. Lancer le backend
 
