@@ -1,49 +1,36 @@
-import { Resolver, Mutation, Args, Subscription, Query } from '@nestjs/graphql';
-import { Message } from './message.model';
-import { RabbitMQService } from '../rabbitmq/rabbimq.service';
+import { Resolver, Query, Mutation, Args, Subscription } from '@nestjs/graphql';
 import { MessageService } from './message.service';
-import { Inject } from '@nestjs/common';
+import { Message } from './message.model';
 import { PubSub } from 'graphql-subscriptions';
+
+const pubSub = new PubSub();
 
 @Resolver(() => Message)
 export class MessageResolver {
-  constructor(
-    private readonly rabbitmqService: RabbitMQService,
-    private readonly messageService: MessageService,
-    @Inject('PUB_SUB') private readonly pubSub: PubSub,
-  ) {}
+  constructor(private messageService: MessageService) {}
 
-  @Query(() => String)
-  _ping() {
-    return 'pong';
+  @Query(() => [Message])
+  messages(@Args('conversationId') conversationId: string) {
+    return this.messageService.findByConversation(conversationId);
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => Message)
   async sendMessage(
     @Args('conversationId') conversationId: string,
+    @Args('authorId') authorId: string,
     @Args('content') content: string,
-  ): Promise<boolean> {
-    const payload = {
-      conversationId,
-      content,
-      authorId: 'mock-user',
-      timestamp: Date.now(),
-    };
-
-    await this.rabbitmqService.sendMessage('message_send', payload);
-    return true;
-  }
-
-  @Query(() => [Message], { name: 'messages' })
-  async getMessages(@Args('conversationId') conversationId: string): Promise<Message[]> {
-    return this.messageService.findMessagesByConversation(conversationId);
+  ) {
+    const timestamp = Date.now();
+    const message = await this.messageService.create({ conversationId, authorId, content, timestamp });
+    await pubSub.publish('messageSent', { messageSent: message });
+    return message;
   }
 
   @Subscription(() => Message, {
-    filter: (payload, variables) => payload.conversationId === variables.conversationId,
-    resolve: (value) => value,
+    filter: (payload, variables) => payload.messageSent.conversation.id === variables.conversationId,
+    resolve: payload => payload.messageSent,
   })
-  onMessageSent(@Args('conversationId') conversationId: string) {
-    return this.pubSub.asyncIterableIterator('message_sent');
+  messageSent(@Args('conversationId') conversationId: string) {
+    return pubSub.asyncIterableIterator('messageSent');
   }
 }

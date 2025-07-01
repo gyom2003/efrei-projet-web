@@ -11,6 +11,6 @@ export class MessageController {
   @EventPattern('message_send')
   async receptionMessage(@Payload() data: any) {
     this.logger.log(`Message reçu : ${JSON.stringify(data)}`);
-    await this.messageService.processMessage(data);
+    await this.messageService.create(data);
   }
 }

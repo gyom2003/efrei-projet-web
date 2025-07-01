@@ -10,8 +10,10 @@ import { RabbitMQService } from './rabbitmq/rabbimq.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { PubSubModule } from './pubsub/pubsub.module';
 import { ConfigModule } from '@nestjs/config';
-import { UsersService } from './user/user.service';
+import { UserService } from './user/user.service';
 import { UserResolver } from './user/user.resolver';
+import { ConversationService } from './conversation/conversation.service';
+import { ConversationResolver } from './conversation/conversation.resolver';
 
 @Module({
   imports: [
@@ -27,7 +29,7 @@ import { UserResolver } from './user/user.resolver';
     PrismaModule,
     PubSubModule
   ],
-  providers: [MessageResolver, RabbitMQService, MessageService, UsersService, UserResolver],
+  providers: [MessageResolver, RabbitMQService, MessageService, UserService, UserResolver, ConversationService, ConversationResolver],
   controllers: [MessageController],
 })
 export class AppModule {}
