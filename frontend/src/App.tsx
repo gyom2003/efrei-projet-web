@@ -92,9 +92,7 @@ export default function App() {
         onSelect={setSelectedConversation}
         onAddConversation={createConversation}
       />
-      <div>
-        <Chat conversationId={selectedConversation?.id ?? ""} />
-      </div>
+      <Chat conversationId={selectedConversation?.id ?? ""} />
     </main>
   );
 }

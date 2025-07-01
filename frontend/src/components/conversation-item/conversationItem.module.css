@@ -63,5 +63,6 @@
 }
 
 .icon:hover {
-  scale: 1.1;
+  background-color: #0056b3;
+  scale: 1.3;
 }

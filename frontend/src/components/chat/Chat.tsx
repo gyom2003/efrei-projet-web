@@ -67,6 +67,14 @@ export default function Chat({ conversationId }: Props) {
     }
   };
 
+  if (!conversationId) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.noMessages}>Sélectionnez une conversation</div>
+      </div>
+    );
+  }
+
   if (loading) return <div>Chargement des messages...</div>;
   if (error) return <div>Erreur : {error.message}</div>;
 
