@@ -1,15 +1,6 @@
 import styles from "./ConversationItem.module.css";
 import { ArrowRight } from "react-bootstrap-icons";
-
-type Message = { id: string; sender: string; text: string; time: string };
-type User = {
-  id: string;
-  name: string;
-  email: string;
-  imageUrl: string;
-  bio?: string;
-};
-type Conversation = { id: string; utilisateur: User; messages: Message[] };
+import type { Conversation } from "../../types";
 
 type Props = {
   conversation: Conversation;
@@ -29,23 +20,17 @@ export default function ConversationItem({
       onClick={onClick}
       className={`${styles.item} ${selected ? styles.selected : ""}`}
     >
-      <img
-        src={conversation.utilisateur.imageUrl}
+      {/* <img
         alt={conversation.utilisateur.name}
         className={styles.profileImage}
-      />
+      /> */}
 
       <div className={styles.content}>
-        <div className={styles.name}>{conversation.utilisateur.name}</div>
-
-        <div className={styles.lastMessage}>
-          {last
-            ? `${last.sender === "Moi" ? "Vous: " : ""}${last.text.slice(
-                0,
-                50
-              )}`
-            : "Aucun message"}
+        <div className={styles.name}>
+          {conversation.participants[1].username}
         </div>
+
+        <div className={styles.lastMessage}>{last.content}</div>
       </div>
       <div className={styles.icon}>
         <ArrowRight />

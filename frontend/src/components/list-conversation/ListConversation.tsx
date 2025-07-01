@@ -3,38 +3,20 @@ import ConversationItem from "../conversation-item/ConversationItem";
 import styles from "./ListConversation.module.css";
 import SearchInput from "../search-input/SearchInput";
 import ButtonAddConversation from "../button-add-conversation/ButtonAddConversation";
-
-type Message = {
-  id: string;
-  sender: string;
-  text: string;
-  time: string;
-};
-
-type User = {
-  id: string;
-  name: string;
-  email: string;
-  imageUrl: string;
-  bio?: string;
-};
-
-type Conversation = {
-  id: string;
-  utilisateur: User;
-  messages: Message[];
-};
+import type { Conversation } from "../../types";
 
 type Props = {
   conversations: Conversation[];
   onSelect: (conv: Conversation) => void;
-  onAddConversation: () => void;
+  onAddConversation: (participantIds: string[]) => void;
+  currentUserId: string;
 };
 
 export default function ListConversation({
   conversations,
   onSelect,
   onAddConversation,
+  currentUserId,
 }: Props) {
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
 
@@ -50,9 +32,11 @@ export default function ListConversation({
         Conversations
       </header>
 
-      {/* Ajoute ici la classe CSS */}
       <div className={styles.buttonAddConversationWrapper}>
-        <ButtonAddConversation onClick={onAddConversation} />
+        <ButtonAddConversation
+          onAddConversation={onAddConversation}
+          currentUserId={currentUserId}
+        />
       </div>
 
       <ul className={styles.list}>

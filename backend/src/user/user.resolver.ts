@@ -1,7 +1,16 @@
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, ObjectType, Field } from '@nestjs/graphql';
 import { UserService } from './user.service';
 import { User } from './user.model';
 import * as bcrypt from 'bcryptjs';
+
+@ObjectType()
+class LoginResponse {
+  @Field()
+  token: string;
+
+  @Field(() => User)
+  user: User;
+}
 
 @Resolver(() => User)
 export class UserResolver {
@@ -27,5 +36,13 @@ export class UserResolver {
       username,
       password: hashedPassword,
     });
+  }
+
+  @Mutation(() => LoginResponse)
+  async login(
+    @Args('username') username: string,
+    @Args('password') password: string,
+  ) {
+    return this.userService.login(username, password);
   }
 }

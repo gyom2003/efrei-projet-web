@@ -21,9 +21,9 @@ export class ConversationResolver {
     return this.conversationService.create(participantIds);
   }
 
-    @Query(() => [Conversation])
-        conversationsForUser(@Args('userId') userId: string) {
-        return this.conversationService.findByUserId(userId);
-    }
+  @Query(() => [Conversation])
+    conversationsForUser(@Args('userId') userId: string) {
+    return this.conversationService.findByUserId(userId);
+  }
 
 }

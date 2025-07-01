@@ -4,67 +4,59 @@ import ListConversation from "./components/list-conversation/ListConversation.ts
 import Chat from "./components/chat/Chat.tsx";
 import { useEffect, useState } from "react";
 import { GET_CONVERSATIONS } from "./graphql/queries";
-import { useQuery } from "@apollo/client";
+import { CREATE_CONVERSATION } from "./graphql/queries";
+import { useMutation, useQuery } from "@apollo/client";
+import { jwtDecode } from "jwt-decode";
+import type { Conversation } from "./types";
 
-// Types
-type Message = {
-  id: string;
-  sender: string;
-  text: string;
-  time: string;
+type JwtPayload = {
+  sub: string;
+  username: string;
+  iat: number;
+  exp: number;
 };
-
-type User = {
-  id: string;
-  name: string;
-  email: string;
-  imageUrl: string;
-  bio?: string;
-};
-
-type Conversation = {
-  id: string;
-  utilisateur: User;
-  messages: Message[];
-};
-
-// Données initiales simulées
-const initialConversations: Conversation[] = [
-  {
-    id: "1",
-    utilisateur: {
-      id: "alice",
-      name: "Alice Dupont",
-      email: "alice@example.com",
-      imageUrl: "https://randomuser.me/api/portraits/women/45.jpg",
-      bio: "Développeuse passionnée de React",
-    },
-    messages: [
-      { id: "m1", sender: "Alice", text: "Salut !", time: "12:00" },
-      { id: "m2", sender: "Moi", text: "Ça va ?", time: "12:01" },
-    ],
-  },
-  {
-    id: "2",
-    utilisateur: {
-      id: "bob",
-      name: "Bob Martin",
-      email: "bob@example.com",
-      imageUrl: "https://randomuser.me/api/portraits/men/45.jpg",
-      bio: "Designer amateur de minimalisme",
-    },
-    messages: [],
-  },
-];
 
 export default function App() {
-  const [conversations, setConversations] =
-    useState<Conversation[]>(initialConversations);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] =
     useState<Conversation | null>(null);
+  const token = localStorage.getItem("token");
+  let currentUserId: string | null = null;
 
-  const { data, loading, error } = useQuery(GET_CONVERSATIONS, {
+  if (token) {
+    const decoded = jwtDecode<JwtPayload>(token);
+    currentUserId = decoded.sub;
+  }
+
+  const { data } = useQuery(GET_CONVERSATIONS, {
+    context: {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+    variables: { userId: currentUserId },
     fetchPolicy: "network-only",
+  });
+
+  useEffect(() => {
+    if (data?.conversationsForUser) {
+      setConversations(data.conversationsForUser);
+    }
+  }, [data]);
+
+  const [createConversationMutation] = useMutation(CREATE_CONVERSATION, {
+    context: {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+    onCompleted(data) {
+      setConversations((prev) => [...prev, data.createConversation]);
+      setSelectedConversation(data.createConversation);
+    },
+    onError(error) {
+      console.error("Erreur création conversation", error);
+    },
   });
 
   useEffect(() => {
@@ -73,36 +65,18 @@ export default function App() {
     }
   }, [data]);
 
-  // Fonction pour créer une nouvelle conversation avec un id unique
-  const createConversation = () => {
-    // Exemple d'ID : timestamp string
-    const newId = Date.now().toString();
+  function createNewConversation(participantIds: string[]) {
+    createConversationMutation({ variables: { participantIds } });
+  }
 
-    // Exemple d'utilisateur temporaire
-    const newUser: User = {
-      id: `user_${newId}`,
-      name: "Nouvel utilisateur",
-      email: "nouveau@example.com",
-      imageUrl: "https://randomuser.me/api/portraits/lego/1.jpg",
-      bio: "Bio temporaire",
-    };
-
-    const newConversation: Conversation = {
-      id: newId,
-      utilisateur: newUser,
-      messages: [],
-    };
-
-    setConversations((prev) => [...prev, newConversation]);
-    setSelectedConversation(newConversation);
-  };
   return (
     <main style={{ height: "100vh" }}>
       <VerticalTaskBar />
       <ListConversation
         conversations={conversations}
         onSelect={setSelectedConversation}
-        onAddConversation={createConversation}
+        onAddConversation={createNewConversation}
+        currentUserId={currentUserId ?? ""}
       />
       <Chat conversationId={selectedConversation?.id ?? ""} />
     </main>

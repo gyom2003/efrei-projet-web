@@ -14,7 +14,11 @@ export class ConversationService {
   findOne(id: string) {
     return this.prisma.conversation.findUnique({
       where: { id },
-      include: { participants: true, messages: true },
+      include: { participants: true, messages: {
+        include: {
+          author: true,
+        },
+      }, },
     });
   }
 
