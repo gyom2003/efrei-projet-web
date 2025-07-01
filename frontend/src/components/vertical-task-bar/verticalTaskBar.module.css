@@ -2,8 +2,9 @@ section {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  background-color: lightgray;
   padding: 0.5em;
+  border-right: 1px solid #e0e0e0;
+  background-color: #ffffff;
 }
 
 .section-icon {
