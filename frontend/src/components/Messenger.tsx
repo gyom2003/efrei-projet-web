@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import ListConversation from "./ListConversation";
 import Chat from "./Chat";
 import Profil from "./Profil";
@@ -25,8 +25,8 @@ type Conversation = {
   messages: Message[];
 };
 
-// Données simulées
-const conversations: Conversation[] = [
+// Données initiales simulées
+const initialConversations: Conversation[] = [
   {
     id: "1",
     utilisateur: {
@@ -55,7 +55,34 @@ const conversations: Conversation[] = [
 ];
 
 export default function Messenger() {
-  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
+  const [conversations, setConversations] =
+    useState<Conversation[]>(initialConversations);
+  const [selectedConversation, setSelectedConversation] =
+    useState<Conversation | null>(null);
+
+  // Fonction pour créer une nouvelle conversation avec un id unique
+  const createConversation = () => {
+    // Exemple d'ID : timestamp string
+    const newId = Date.now().toString();
+
+    // Exemple d'utilisateur temporaire
+    const newUser: User = {
+      id: `user_${newId}`,
+      name: "Nouvel utilisateur",
+      email: "nouveau@example.com",
+      imageUrl: "https://randomuser.me/api/portraits/lego/1.jpg",
+      bio: "Bio temporaire",
+    };
+
+    const newConversation: Conversation = {
+      id: newId,
+      utilisateur: newUser,
+      messages: [],
+    };
+
+    setConversations((prev) => [...prev, newConversation]);
+    setSelectedConversation(newConversation); // Sélectionne directement la nouvelle conversation
+  };
 
   return (
     <div
@@ -68,19 +95,31 @@ export default function Messenger() {
         fontFamily: "sans-serif",
       }}
     >
-      {/* Passe la conversation complète à ListConversation */}
-      <ListConversation
-        conversations={conversations}
-        onSelect={setSelectedConversation}
-      />
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        <button
+          onClick={createConversation}
+          style={{
+            margin: 10,
+            padding: "10px 20px",
+            borderRadius: 8,
+            backgroundColor: "#007bff",
+            color: "white",
+            border: "none",
+            cursor: "pointer",
+            fontWeight: "bold",
+          }}
+        >
+          Nouvelle conversation
+        </button>
 
-      {/* Chat affiché seulement si une conversation est sélectionnée */}
-      <Chat
-        conversationId={selectedConversation?.id ?? null}
-        initialMessages={selectedConversation?.messages ?? []}
-      />
+        <ListConversation
+          conversations={conversations}
+          onSelect={setSelectedConversation}
+        />
+      </div>
 
-      {/* Affichage du profil utilisateur */}
+      <Chat conversationId={selectedConversation?.id ?? ""} />
+
       {selectedConversation && (
         <Profil
           name={selectedConversation.utilisateur.name}

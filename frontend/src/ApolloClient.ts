@@ -1,15 +1,17 @@
 import { WebSocketLink } from '@apollo/client/link/ws';
 import { ApolloClient, InMemoryCache, split, HttpLink } from '@apollo/client';
 import { getMainDefinition } from '@apollo/client/utilities';
+const httpUri = import.meta.env.VITE_BACKEND_URL_FR;
+const wsUri = import.meta.env.VITE_BACKEND_WS_URL_FR;
 
 // HTTP link pour requêtes queries/mutations
 const httpLink = new HttpLink({
-  uri: 'http://localhost:3000/graphql',
+  uri: httpUri,
 });
 
 // WS link pour subscriptions
 const wsLink = new WebSocketLink({
-  uri: `ws://localhost:3000/graphql`,
+  uri: wsUri,
   options: {
     reconnect: true,
   },

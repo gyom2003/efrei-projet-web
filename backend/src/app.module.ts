@@ -9,10 +9,14 @@ import { RabbitMQModule } from './rabbitmq/rabbitmq.module';
 import { RabbitMQService } from './rabbitmq/rabbimq.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { PubSubModule } from './pubsub/pubsub.module';
+import { ConfigModule } from '@nestjs/config';
 import { UserResolver } from 'graphQL/resolver/user.resolver';
 import { UsersService } from 'graphQL/services/user.service';
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: true,

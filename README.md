@@ -2,31 +2,32 @@
 
 ## Lancement du projet 
 
+### 🐳 Via docker 
+
 ```cmd
-cd chat-app
+docker-compose up -d
 ```
 
-Lancer rabbitmq : 
+### 📍 En local 
+
+1. Lancer rabbitmq
 
 ```cmd
 docker-compose up -d rabbitmq
 ```
-
-Lancer chaque service : 
-```cmd
-cd api
-npm i
-npm run start:dev
-```
+2. Lancer le backend
 
 ```cmd
-cd worker
-npm i
-npm run start:dev
+cd backend
+npm i 
+npx prisma generate
+npm run start
 ```
+
+3. Lancer le frontend
 
 ```cmd
 cd frontend
-npm i
-npm run start:dev
+npm i 
+npm run dev
 ```
