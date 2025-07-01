@@ -36,5 +36,10 @@ describe('MessageService', () => {
       data: mockMessage,
     });
     expect(result.id).toEqual("uuid-test");
+    expect(result.content).toEqual("Bonjour le monde");
+    expect(result.authorId).toEqual("user-42");
+    expect(result.conversationId).toEqual("conv-1");
+    expect(result.timestamp).toEqual(1751064637690);
+
   });
 });
