@@ -1,5 +1,8 @@
 import React from "react";
-import ConversationItem from "./ConversationItem";
+import ConversationItem from "../conversation-item/ConversationItem";
+import styles from "./ListConversation.module.css";
+import SearchInput from "../search-input/SearchInput";
+import ButtonAddConversation from "../button-add-conversation/ButtonAddConversation";
 
 type Message = {
   id: string;
@@ -25,9 +28,14 @@ type Conversation = {
 type Props = {
   conversations: Conversation[];
   onSelect: (conv: Conversation) => void;
+  onAddConversation: () => void;
 };
 
-export default function ListConversation({ conversations, onSelect }: Props) {
+export default function ListConversation({
+  conversations,
+  onSelect,
+  onAddConversation,
+}: Props) {
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
 
   const handleSelect = (conv: Conversation) => {
@@ -36,34 +44,22 @@ export default function ListConversation({ conversations, onSelect }: Props) {
   };
 
   return (
-    <aside
-      style={{
-        width: 320,
-        borderRight: "1px solid #e0e0e0",
-        backgroundColor: "#f5f7fa",
-        display: "flex",
-        flexDirection: "column",
-        height: "100vh",
-        overflowY: "auto",
-      }}
-    >
-      <header
-        style={{
-          padding: "16px 20px",
-          fontWeight: "bold",
-          fontSize: "1.2rem",
-          borderBottom: "1px solid #e0e0e0",
-          backgroundColor: "#fff",
-        }}
-      >
+    <aside className={styles.container}>
+      <header className={styles.header}>
+        <SearchInput />
         Conversations
       </header>
 
-      <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+      {/* Ajoute ici la classe CSS */}
+      <div className={styles.buttonAddConversationWrapper}>
+        <ButtonAddConversation onClick={onAddConversation} />
+      </div>
+
+      <ul className={styles.list}>
         {conversations.map((conv) => (
           <ConversationItem
             key={conv.id}
-            conversation={conv}            // corrige la prop : conversation au singulier
+            conversation={conv}
             selected={conv.id === selectedId}
             onClick={() => handleSelect(conv)}
           />

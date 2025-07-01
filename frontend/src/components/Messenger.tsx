@@ -1,6 +1,6 @@
 import { useState } from "react";
-import ListConversation from "./ListConversation";
-import Chat from "./Chat";
+import ListConversation from "./list-conversation/ListConversation";
+import Chat from "./chat/Chat";
 import Profil from "./Profil";
 
 // Types
@@ -96,25 +96,10 @@ export default function Messenger() {
       }}
     >
       <div style={{ display: "flex", flexDirection: "column" }}>
-        <button
-          onClick={createConversation}
-          style={{
-            margin: 10,
-            padding: "10px 20px",
-            borderRadius: 8,
-            backgroundColor: "#007bff",
-            color: "white",
-            border: "none",
-            cursor: "pointer",
-            fontWeight: "bold",
-          }}
-        >
-          Nouvelle conversation
-        </button>
-
         <ListConversation
           conversations={conversations}
           onSelect={setSelectedConversation}
+          onAddConversation={createConversation}
         />
       </div>
 
