@@ -10,14 +10,14 @@ services:
       RABBITMQ_DEFAULT_USER: user
       RABBITMQ_DEFAULT_PASS: password
 
-  api:
-    build: ./api
-    ports:
-      - "3000:3000"
-    depends_on:
-      - rabbitmq
+  # api:
+  #   build: ./api
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - rabbitmq
 
-  worker:
-    build: ./worker
-    depends_on:
-      - rabbitmq
+  # worker:
+  #   build: ./worker
+  #   depends_on:
+  #     - rabbitmq

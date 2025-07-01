@@ -8,7 +8,7 @@
   "scripts": {
     "build": "nest build",
     "build:schema": "nest build",
-    "codegen": "npm run build:schema && graphql-codegen --config codegen.yml",
+    "codegen": "npm run build:schema && graphql-codegen --config ./graphQL/codegen.yml",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -42,6 +42,8 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
+    "@graphql-codegen/cli": "^5.0.7",
+    "@graphql-codegen/typescript-apollo-client-helpers": "^3.0.1",
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.1",
@@ -64,7 +66,7 @@
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.7.3",
+    "typescript": "^5.8.3",
     "typescript-eslint": "^8.20.0"
   },
   "jest": {

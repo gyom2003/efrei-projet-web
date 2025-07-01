@@ -9,7 +9,8 @@ import { RabbitMQModule } from './rabbitmq/rabbitmq.module';
 import { RabbitMQService } from './rabbitmq/rabbimq.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { PubSubModule } from './pubsub/pubsub.module';
-
+import { UserResolver } from 'graphQL/resolver/user.resolver';
+import { UsersService } from 'graphQL/services/user.service';
 @Module({
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
@@ -19,9 +20,9 @@ import { PubSubModule } from './pubsub/pubsub.module';
     }),
     RabbitMQModule,
     PrismaModule,
-    PubSubModule
+    PubSubModule,
   ],
-  providers: [MessageResolver, RabbitMQService, MessageService],
+  providers: [MessageResolver, RabbitMQService, MessageService, UserResolver, UsersService],
   controllers: [MessageController],
 })
 export class AppModule {}
