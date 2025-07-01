@@ -33,10 +33,6 @@ export default function Chat({ conversationId }: Props) {
     authorId = decoded.sub;
   }
 
-  console.log("authorID: " + authorId);
-  console.log("conversationId: " + conversationId);
-
-  // 🔁 Appelle la conversation complète (participants + messages)
   const { data, loading, error } = useQuery(GET_CONVERSATION, {
     variables: { id: conversationId },
     skip: !conversationId,
@@ -104,6 +100,7 @@ export default function Chat({ conversationId }: Props) {
                 author.id === authorId ? styles.me : styles.other
               }`}
             >
+              <div></div>
               <div className={styles.messageAuthor}>
                 {author.id === authorId ? "Moi" : author.username}
               </div>
