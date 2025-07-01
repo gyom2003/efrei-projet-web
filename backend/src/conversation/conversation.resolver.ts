@@ -1,11 +1,10 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { ConversationService } from './conversation.service';
 import { Conversation } from './conversation.model';
-import { PrismaService } from '../prisma/prisma.service';
 
 @Resolver(() => Conversation)
 export class ConversationResolver {
-  constructor(private conversationService: ConversationService, private prismaService: PrismaService) {}
+  constructor(private conversationService: ConversationService) {}
 
   @Query(() => [Conversation])
   conversations() {
@@ -21,4 +20,10 @@ export class ConversationResolver {
   createConversation(@Args({ name: 'participantIds', type: () => [String] }) participantIds: string[]) {
     return this.conversationService.create(participantIds);
   }
+
+    @Query(() => [Conversation])
+        conversationsForUser(@Args('userId') userId: string) {
+        return this.conversationService.findByUserId(userId);
+    }
+
 }
