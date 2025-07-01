@@ -10,8 +10,9 @@ describe('MessageResolver', () => {
   let messageService: MessageService;
 
   const mockPubSub = {
-    asyncIterator: jest.fn().mockReturnValue({}),
-  };
+  asyncIterator: jest.fn().mockReturnValue({}),
+  asyncIterableIterator: jest.fn().mockReturnValue({}), // Ajouté pour correspondre au resolver
+};
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -73,8 +74,8 @@ describe('MessageResolver', () => {
   });
 
   it('devrait retourner un itérateur async dans onMessageSent()', () => {
-    const result = resolver.onMessageSent('conv-1');
-    expect(mockPubSub.asyncIterator).toHaveBeenCalledWith('message_sent');
-    expect(result).toEqual({});
+  const result = resolver.onMessageSent('conv-1');
+  expect(mockPubSub.asyncIterableIterator).toHaveBeenCalledWith('message_sent');
+  expect(result).toEqual({});
   });
 });
