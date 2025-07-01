@@ -1,0 +1,108 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  background-color: #f0f2f5;
+  height: 100%;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.messagesWrapper {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 12px;
+}
+
+.noMessages {
+  color: #999;
+  font-style: italic;
+}
+
+.messageItem {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+}
+
+.messageItem.me {
+  align-items: flex-end;
+}
+
+.messageItem.other {
+  align-items: flex-start;
+}
+
+.messageAuthor {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.messageContent {
+  padding: 10px 14px;
+  border-radius: 8px;
+  max-width: 70%;
+  color: black;
+  font-size: 14px;
+}
+
+.messageContent.me {
+  background-color: #25d366;
+}
+
+.messageContent.other {
+  background-color: #d3d3d3;
+}
+
+.messageTime {
+  font-size: 12px;
+  text-align: right;
+  color: #000000;
+  margin-top: 4px;
+}
+
+.inputWrapper {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.inputMessage {
+  padding: 10px 15px;
+  border-radius: 20px;
+  background-color: #ffffff;
+  color: #000000;
+  outline: none;
+  width: 90%;
+  border: 0.5px solid #ccc;
+}
+
+.sendButton {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #000000;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.sendButton svg {
+  width: 20px;
+  height: 20px;
+}
+
+.noMessages {
+  font-style: italic;
+  color: #999;
+  padding-top: 20px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

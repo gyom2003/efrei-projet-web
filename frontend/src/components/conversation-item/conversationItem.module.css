@@ -1,0 +1,68 @@
+.item {
+  cursor: pointer;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: white;
+  border-radius: 8px;
+  margin-bottom: 5px;
+}
+
+.item.selected {
+  background-color: #e6f0ff;
+}
+
+.item:not(.selected):hover {
+  background-color: #f9f9f9;
+}
+
+.profileImage {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.content {
+  flex: 1;
+}
+
+.name {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 4px;
+  color: #000000;
+}
+
+.lastMessage {
+  font-size: 0.9rem;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.time {
+  font-size: 0.75rem;
+  color: #aaa;
+  margin-left: 8px;
+  white-space: nowrap;
+}
+
+.icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #000000;
+  padding: 5px;
+  border-radius: 50%;
+  transition: 0.2s;
+}
+
+.icon:hover {
+  background-color: #0056b3;
+  scale: 1.3;
+}
