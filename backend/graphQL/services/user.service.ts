@@ -10,6 +10,7 @@ export class UsersService {
       id: `${Date.now()}`,
       username: data.username,
       password: data.password,
+      email: data.email,
       createdAt: new Date().toISOString(),
     };
     this.users.push(user);

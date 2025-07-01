@@ -12,5 +12,8 @@ export class User {
   password: string;
 
   @Field()
+  email: string;
+
+  @Field()
   createdAt: string;
 }

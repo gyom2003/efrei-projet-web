@@ -5,7 +5,7 @@ import {
   Args,
 } from '@nestjs/graphql';
 import { PrismaService } from '../../src/prisma/prisma.service';
-import bcrypt from "bcryptjs";
+import * as bcrypt from "bcryptjs";
 import { User } from '../models/user.model';
 // import { PubSub } from 'graphql-subscriptions';
 // import { Inject } from '@nestjs/common';
@@ -28,13 +28,16 @@ export class UserResolver {
 
     //mutation add user method
     @Mutation(() => User)
-    async createUser(@Args('username') username: string,
-    @Args('password') password: string) {
+    async createUser(
+        @Args('username') username: string,
+        @Args('password') password: string,
+        @Args('email') email: string) {
         const hashedPassword = await bcrypt.hash(password, 10);
         return this.prisma.user.create({
             data: {
             username,
             password: hashedPassword,
+            email
             },
         });
     }

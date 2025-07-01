@@ -45,8 +45,14 @@ export type MutationSendMessageArgs = {
 export type Query = {
   __typename?: 'Query';
   _ping: Scalars['String']['output'];
+  messages: Array<Message>;
   user?: Maybe<User>;
   users: Array<User>;
+};
+
+
+export type QueryMessagesArgs = {
+  conversationId: Scalars['String']['input'];
 };
 
 
@@ -93,9 +99,10 @@ export type MutationFieldPolicy = {
 	createUser?: FieldPolicy<any> | FieldReadFunction<any>,
 	sendMessage?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type QueryKeySpecifier = ('_ping' | 'user' | 'users' | QueryKeySpecifier)[];
+export type QueryKeySpecifier = ('_ping' | 'messages' | 'user' | 'users' | QueryKeySpecifier)[];
 export type QueryFieldPolicy = {
 	_ping?: FieldPolicy<any> | FieldReadFunction<any>,
+	messages?: FieldPolicy<any> | FieldReadFunction<any>,
 	user?: FieldPolicy<any> | FieldReadFunction<any>,
 	users?: FieldPolicy<any> | FieldReadFunction<any>
 };
