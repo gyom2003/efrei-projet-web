@@ -27,3 +27,24 @@ export const ON_MESSAGE_SENT = gql`
     }
   }
 `;
+
+export const GET_CONVERSATIONS = gql`
+  query GetConversations {
+    conversations {
+      id
+      utilisateur {
+        id
+        name
+        email
+        imageUrl
+        bio
+      }
+      messages {
+        id
+        authorId
+        content
+        timestamp
+      }
+    }
+  }
+`;

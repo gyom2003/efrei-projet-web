@@ -2,7 +2,9 @@ import VerticalTaskBar from "./components/vertical-task-bar/VerticalTaskBar.tsx"
 import "./App.css";
 import ListConversation from "./components/list-conversation/ListConversation.tsx";
 import Chat from "./components/chat/Chat.tsx";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { GET_CONVERSATIONS } from "./graphql/queries";
+import { useQuery } from "@apollo/client";
 
 // Types
 type Message = {
@@ -60,6 +62,16 @@ export default function App() {
     useState<Conversation[]>(initialConversations);
   const [selectedConversation, setSelectedConversation] =
     useState<Conversation | null>(null);
+
+  const { data, loading, error } = useQuery(GET_CONVERSATIONS, {
+    fetchPolicy: "network-only",
+  });
+
+  useEffect(() => {
+    if (data?.conversations) {
+      setConversations(data.conversations);
+    }
+  }, [data]);
 
   // Fonction pour créer une nouvelle conversation avec un id unique
   const createConversation = () => {
