@@ -125,7 +125,6 @@ export default function Chat({ conversationId }: Props) {
                     isMe ? styles.me : styles.other
                   }`}
                 >
-                  <div></div>
                   <div className={styles.messageAuthor}>
                     {isMe ? "Moi" : author.username}
                   </div>

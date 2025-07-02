@@ -25,6 +25,7 @@ export const ON_MESSAGE_SENT = gql`
       author {
         username
       }
+      timestamp
     }
   }
 `;
