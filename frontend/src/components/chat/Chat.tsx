@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useSubscription } from "@apollo/client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Send } from "react-bootstrap-icons";
 import { jwtDecode } from "jwt-decode"; // corrigé import
 import styles from "./Chat.module.css";
@@ -24,6 +24,11 @@ type JwtPayload = {
 export default function Chat({ conversationId }: Props) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const token = localStorage.getItem("token");
   let authorId = "";
@@ -109,27 +114,30 @@ export default function Chat({ conversationId }: Props) {
         {messages.length === 0 ? (
           <div className={styles.noMessages}>Aucun message.</div>
         ) : (
-          messages.map(({ id, author, content, timestamp }) => {
-            const isMe = author.username === username;
+          <>
+            {messages.map(({ id, author, content, timestamp }) => {
+              const isMe = author.username === username;
 
-            return (
-              <div
-                key={id}
-                className={`${styles.messageItem} ${
-                  isMe ? styles.me : styles.other
-                }`}
-              >
-                <div></div>
-                <div className={styles.messageAuthor}>
-                  {isMe ? "Moi" : author.username}
+              return (
+                <div
+                  key={id}
+                  className={`${styles.messageItem} ${
+                    isMe ? styles.me : styles.other
+                  }`}
+                >
+                  <div></div>
+                  <div className={styles.messageAuthor}>
+                    {isMe ? "Moi" : author.username}
+                  </div>
+                  <div className={styles.messageContent}>{content}</div>
+                  <div className={styles.messageTime}>
+                    {new Date(timestamp).toLocaleTimeString()}
+                  </div>
                 </div>
-                <div className={styles.messageContent}>{content}</div>
-                <div className={styles.messageTime}>
-                  {new Date(timestamp).toLocaleTimeString()}
-                </div>
-              </div>
-            );
-          })
+              );
+            })}
+            <div ref={bottomRef} />
+          </>
         )}
       </div>
 
