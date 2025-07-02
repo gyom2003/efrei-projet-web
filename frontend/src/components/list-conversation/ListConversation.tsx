@@ -46,6 +46,7 @@ export default function ListConversation({
             conversation={conv}
             selected={conv.id === selectedId}
             onClick={() => handleSelect(conv)}
+            currentUserId={currentUserId}
           />
         ))}
       </ul>

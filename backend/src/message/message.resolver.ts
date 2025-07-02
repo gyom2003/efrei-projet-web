@@ -33,17 +33,13 @@ export class MessageResolver {
 
   @Subscription(() => Message, {
     filter: (payload, variables) => {
-      console.log('Subscription filter payload:', payload);
-      console.log('Subscription filter variables:', variables);
       return payload.messageSent.conversation.id === variables.conversationId;
     },
     resolve: (payload) => {
-      console.log('Subscription resolve payload:', payload);
       return payload.messageSent;
     },
   })
   messageSent(@Args('conversationId') conversationId: string) {
-    console.log('Subscription started for conversation:', conversationId);
     return this.pubSub.asyncIterableIterator('messageSent');
   }
 

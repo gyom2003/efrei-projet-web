@@ -6,15 +6,18 @@ type Props = {
   conversation: Conversation;
   selected: boolean;
   onClick: () => void;
+  currentUserId: string;
 };
 
 export default function ConversationItem({
   conversation,
   selected,
   onClick,
+  currentUserId,
 }: Props) {
-  const last = conversation.messages[conversation.messages.length - 1];
-
+  const otherParticipant = conversation.participants.find(
+    (p) => p.id !== currentUserId
+  );
   return (
     <li
       onClick={onClick}
@@ -27,10 +30,11 @@ export default function ConversationItem({
 
       <div className={styles.content}>
         <div className={styles.name}>
-          {conversation.participants[1].username}
+          {otherParticipant?.username || "Utilisateur inconnu"}
         </div>
-
-        <div className={styles.lastMessage}>{last.content}</div>
+        <p className={styles.lastMessage}>
+          {conversation.messages?.slice(-1)[0]?.content || "Aucun message"}
+        </p>
       </div>
       <div className={styles.icon}>
         <ArrowRight />
