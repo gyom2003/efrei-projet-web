@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useSubscription } from "@apollo/client";
 import { useEffect, useState } from "react";
 import { Send } from "react-bootstrap-icons";
-import { jwtDecode } from "jwt-decode";
+import { jwtDecode } from "jwt-decode"; // corrigé import
 import styles from "./Chat.module.css";
 import {
   GET_CONVERSATION,
@@ -27,10 +27,12 @@ export default function Chat({ conversationId }: Props) {
 
   const token = localStorage.getItem("token");
   let authorId = "";
+  let username = "";
 
   if (token) {
     const decoded = jwtDecode<JwtPayload>(token);
     authorId = decoded.sub;
+    username = decoded.username;
   }
 
   const { data, loading, error } = useQuery(GET_CONVERSATION, {
@@ -39,24 +41,38 @@ export default function Chat({ conversationId }: Props) {
     fetchPolicy: "network-only",
   });
 
-  console.log(data);
-
   const [sendMessage] = useMutation(SEND_MESSAGE);
 
-  const { data: subscriptionData } = useSubscription(ON_MESSAGE_SENT, {
-    variables: { conversationId },
-    skip: !conversationId,
-  });
+  const { data: subscriptionData, error: subscriptionError } = useSubscription(
+    ON_MESSAGE_SENT,
+    {
+      variables: { conversationId },
+      skip: !conversationId,
+    }
+  );
 
   useEffect(() => {
-    if (data?.conversation?.messages) {
+    if (subscriptionError) {
+      console.error("Subscription error:", subscriptionError);
+    }
+  }, [subscriptionError]);
+
+  // Charger les anciens messages uniquement si messages vide (premier chargement)
+  useEffect(() => {
+    if (data?.conversation?.messages && messages.length === 0) {
       setMessages(data.conversation.messages);
     }
   }, [data]);
 
+  // Ajouter les nouveaux messages reçus en subscription sans doublon
   useEffect(() => {
-    if (subscriptionData?.onMessageSent) {
-      setMessages((prev) => [...prev, subscriptionData.onMessageSent]);
+    if (subscriptionData?.messageSent) {
+      setMessages((prev) => {
+        if (prev.some((msg) => msg.id === subscriptionData.messageSent.id)) {
+          return prev; // évite doublon
+        }
+        return [...prev, subscriptionData.messageSent];
+      });
     }
   }, [subscriptionData]);
 
@@ -93,23 +109,27 @@ export default function Chat({ conversationId }: Props) {
         {messages.length === 0 ? (
           <div className={styles.noMessages}>Aucun message.</div>
         ) : (
-          messages.map(({ id, author, content, timestamp }) => (
-            <div
-              key={id}
-              className={`${styles.messageItem} ${
-                author.id === authorId ? styles.me : styles.other
-              }`}
-            >
-              <div></div>
-              <div className={styles.messageAuthor}>
-                {author.id === authorId ? "Moi" : author.username}
+          messages.map(({ id, author, content, timestamp }) => {
+            const isMe = author.username === username;
+
+            return (
+              <div
+                key={id}
+                className={`${styles.messageItem} ${
+                  isMe ? styles.me : styles.other
+                }`}
+              >
+                <div></div>
+                <div className={styles.messageAuthor}>
+                  {isMe ? "Moi" : author.username}
+                </div>
+                <div className={styles.messageContent}>{content}</div>
+                <div className={styles.messageTime}>
+                  {new Date(timestamp).toLocaleTimeString()}
+                </div>
               </div>
-              <div className={styles.messageContent}>{content}</div>
-              <div className={styles.messageTime}>
-                {new Date(timestamp).toLocaleTimeString()}
-              </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
 

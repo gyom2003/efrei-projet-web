@@ -13,28 +13,18 @@ export const GET_MESSAGES = gql`
 
 export const SEND_MESSAGE = gql`
   mutation SendMessage($conversationId: String!, $authorId: String!, $content: String!) {
-    sendMessage(conversationId: $conversationId, authorId: $authorId, content: $content) {
-      id
-      content
-      timestamp
-      author {
-        id
-        username
-      }
-      conversation {
-        id
-      }
-    }
-  }
+  sendMessage(conversationId: $conversationId, authorId: $authorId, content: $content)
+}
 `;
 
 export const ON_MESSAGE_SENT = gql`
   subscription OnMessageSent($conversationId: String!) {
-    onMessageSent(conversationId: $conversationId) {
+    messageSent(conversationId: $conversationId) {
       id
-      authorId
       content
-      timestamp
+      author {
+        username
+      }
     }
   }
 `;

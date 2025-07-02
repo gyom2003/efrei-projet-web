@@ -26,7 +26,16 @@ import { verifyToken } from './auth/auth.module';
       driver: ApolloDriver,
       autoSchemaFile: true,
       installSubscriptionHandlers: true,
-      context: ({ req }) => {
+      context: ({ req, connection }) => {
+        if (connection) {
+          console.log('WS connection context:', connection.context);
+          const authHeader = connection.context?.authorization || '';
+          if (!authHeader) throw new Error('No token provided');
+          const token = authHeader.split(' ')[1];
+          const user = verifyToken(token);
+          return { user };
+        }
+
         const authHeader = req.headers.authorization || '';
         const operationName = req.body?.operationName;
 
