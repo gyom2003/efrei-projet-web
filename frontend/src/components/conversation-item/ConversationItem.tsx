@@ -1,51 +1,40 @@
 import styles from "./ConversationItem.module.css";
 import { ArrowRight } from "react-bootstrap-icons";
-
-type Message = { id: string; sender: string; text: string; time: string };
-type User = {
-  id: string;
-  name: string;
-  email: string;
-  imageUrl: string;
-  bio?: string;
-};
-type Conversation = { id: string; utilisateur: User; messages: Message[] };
+import type { Conversation } from "../../types";
 
 type Props = {
   conversation: Conversation;
   selected: boolean;
   onClick: () => void;
+  currentUserId: string;
 };
 
 export default function ConversationItem({
   conversation,
   selected,
   onClick,
+  currentUserId,
 }: Props) {
-  const last = conversation.messages[conversation.messages.length - 1];
-
+  const otherParticipant = conversation.participants.find(
+    (p) => p.id !== currentUserId
+  );
   return (
     <li
       onClick={onClick}
       className={`${styles.item} ${selected ? styles.selected : ""}`}
     >
-      <img
-        src={conversation.utilisateur.imageUrl}
+      {/* <img
         alt={conversation.utilisateur.name}
         className={styles.profileImage}
-      />
+      /> */}
 
       <div className={styles.content}>
-        <div className={styles.name}>{conversation.utilisateur.name}</div>
-
-        <div className={styles.lastMessage}>
-          {last
-            ? `${last.sender === "Moi" ? "Vous: " : ""}${last.text.slice(
-                0,
-                50
-              )}`
-            : "Aucun message"}
+        <div className={styles.name}>
+          {otherParticipant?.username || "Utilisateur inconnu"}
         </div>
+        <p className={styles.lastMessage}>
+          {conversation.messages?.slice(-1)[0]?.content || "Aucun message"}
+        </p>
       </div>
       <div className={styles.icon}>
         <ArrowRight />

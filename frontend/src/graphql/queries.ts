@@ -12,39 +12,78 @@ export const GET_MESSAGES = gql`
 `;
 
 export const SEND_MESSAGE = gql`
-  mutation SendMessage($conversationId: String!, $content: String!) {
-    sendMessage(conversationId: $conversationId, content: $content)
-  }
+  mutation SendMessage($conversationId: String!, $authorId: String!, $content: String!) {
+  sendMessage(conversationId: $conversationId, authorId: $authorId, content: $content)
+}
 `;
 
 export const ON_MESSAGE_SENT = gql`
   subscription OnMessageSent($conversationId: String!) {
-    onMessageSent(conversationId: $conversationId) {
+    messageSent(conversationId: $conversationId) {
       id
-      authorId
       content
+      author {
+        username
+      }
       timestamp
     }
   }
 `;
 
 export const GET_CONVERSATIONS = gql`
-  query GetConversations {
-    conversations {
+  query conversationsForUser($userId: String!) {
+    conversationsForUser(userId: $userId) {
       id
-      utilisateur {
+      participants {
         id
-        name
-        email
-        imageUrl
-        bio
+        username
       }
       messages {
         id
-        authorId
         content
         timestamp
+        author {
+          id
+          username
+        }
       }
     }
   }
+`;
+
+export const CREATE_CONVERSATION = gql`
+  mutation CreateConversation($participantIds: [String!]!) {
+    createConversation(participantIds: $participantIds) {
+      id
+      participants {
+        id
+        username
+      }
+      messages {
+        id
+        content
+      }
+    }
+  }
+`;
+
+export const GET_CONVERSATION = gql`
+query GetConversation($id: String!) {
+  conversation(id: $id) {
+    id
+    participants {
+      id
+      username
+    }
+    messages {
+      id
+      content
+      timestamp
+      author {
+        id
+        username
+      }
+    }
+  }
+}
 `;

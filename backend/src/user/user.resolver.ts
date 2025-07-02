@@ -1,44 +1,48 @@
-import {
-  Resolver,
-  Query,
-  Mutation,
-  Args,
-} from '@nestjs/graphql';
-import { PrismaService } from '../prisma/prisma.service';
-import * as bcrypt from "bcryptjs";
+import { Resolver, Query, Mutation, Args, ObjectType, Field } from '@nestjs/graphql';
+import { UserService } from './user.service';
 import { User } from './user.model';
-// import { PubSub } from 'graphql-subscriptions';
-// import { Inject } from '@nestjs/common';
-// import { UsersService } from '../services/user.service';
+import * as bcrypt from 'bcryptjs';
+
+@ObjectType()
+class LoginResponse {
+  @Field()
+  token: string;
+
+  @Field(() => User)
+  user: User;
+}
 
 @Resolver(() => User)
 export class UserResolver {
-    constructor(private readonly prisma: PrismaService) {}
+  constructor(private userService: UserService) {}
 
-    @Query(() => [User])
-    users() {
-        return this.prisma.user.findMany({ orderBy: { createdAt: 'asc'} })
-    }
+  @Query(() => [User])
+  users() {
+    return this.userService.findAll();
+  }
 
-    
-    @Query(() => User, { nullable: true })
-    user(@Args('id') id: string) {
-        return this.prisma.user.findUnique({ where: { id } });
-    }
+  @Query(() => User, { nullable: true })
+  user(@Args('id') id: string) {
+    return this.userService.findById(id);
+  }
 
-    //mutation add user method
-    @Mutation(() => User)
-    async createUser(
-        @Args('username') username: string,
-        @Args('password') password: string,
-        @Args('email') email: string) {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        return this.prisma.user.create({
-            data: {
-            username,
-            password: hashedPassword,
-            email
-            },
-        });
-    }
+  @Mutation(() => User)
+  async createUser(
+    @Args('username') username: string,
+    @Args('password') password: string,
+  ) {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    return this.userService.createUser({
+      username,
+      password: hashedPassword,
+    });
+  }
+
+  @Mutation(() => LoginResponse)
+  async login(
+    @Args('username') username: string,
+    @Args('password') password: string,
+  ) {
+    return this.userService.login(username, password);
+  }
 }

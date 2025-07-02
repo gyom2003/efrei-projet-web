@@ -1,19 +1,21 @@
-import { ObjectType, Field, Float } from '@nestjs/graphql';
+import { ObjectType, Field, ID, Float } from '@nestjs/graphql';
+import { User } from '../user/user.model';
+import { Conversation } from '../conversation/conversation.model';
 
 @ObjectType()
 export class Message {
-  @Field()
+  @Field(() => ID)
   id: string;
-
-  @Field()
-  conversationId: string;
 
   @Field()
   content: string;
 
-  @Field()
-  authorId: string;
-
   @Field(() => Float)
   timestamp: number;
+
+  @Field(() => User)
+  author: User;
+
+  @Field(() => Conversation)
+  conversation: Conversation;
 }

@@ -1,16 +1,33 @@
-import { Controller, Logger } from '@nestjs/common';
+import { Inject, Controller } from '@nestjs/common';
 import { EventPattern, Payload } from '@nestjs/microservices';
-import { MessageService } from './message.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { PubSub } from 'graphql-subscriptions';
 
 @Controller()
 export class MessageController {
-  private readonly logger = new Logger(MessageController.name);
-
-  constructor(private readonly messageService: MessageService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject('PUB_SUB') private pubSub: PubSub,
+  ) {}
 
   @EventPattern('message_send')
-  async receptionMessage(@Payload() data: any) {
-    this.logger.log(`Message reçu : ${JSON.stringify(data)}`);
-    await this.messageService.processMessage(data);
+  async handleMessage(@Payload() data: any) {
+    const { conversationId, authorId, content, timestamp } = data;
+
+    const message = await this.prisma.message.create({
+      data: {
+        content,
+        timestamp,
+        conversation: { connect: { id: conversationId } },
+        author: { connect: { id: authorId } },
+      },
+      include: {
+        author: true,
+        conversation: true,
+      },
+    });
+
+    console.log('📩 Message reçu et sauvegardé via RabbitMQ');
+    await this.pubSub.publish('messageSent', { messageSent: message });
   }
 }
