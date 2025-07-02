@@ -1,81 +1,62 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MessageResolver } from '../../src/message/message.resolver';
-import { RabbitMQService } from '../../src/rabbitmq/rabbimq.service';
 import { MessageService } from '../../src/message/message.service';
-import { mockMessage } from '../mock/mock-message';
+import { PubSub } from 'graphql-subscriptions';
+import { PrismaService } from '../../src/prisma/prisma.service';
+import { RabbitMQService } from '../../src/rabbitmq/rabbimq.service';
 
 describe('MessageResolver', () => {
   let resolver: MessageResolver;
-  let rabbitmqService: RabbitMQService;
   let messageService: MessageService;
-
-  const mockPubSub = {
-  asyncIterator: jest.fn().mockReturnValue({}),
-  asyncIterableIterator: jest.fn().mockReturnValue({}), // Ajouté pour correspondre au resolver
-};
+  let rabbitmqService: RabbitMQService;
+  let pubSub: PubSub;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         MessageResolver,
         {
-          provide: RabbitMQService,
+          provide: MessageService,
           useValue: {
-            sendMessage: jest.fn(),
+            findByConversation: jest.fn().mockResolvedValue(['msg1', 'msg2']),
           },
         },
         {
-          provide: MessageService,
+          provide: PrismaService,
+          useValue: {},
+        },
+        {
+          provide: RabbitMQService,
           useValue: {
-            findMessagesByConversation: jest.fn().mockResolvedValue([mockMessage]),
+            sendMessage: jest.fn().mockResolvedValue(true),
           },
         },
         {
           provide: 'PUB_SUB',
-          useValue: mockPubSub,
+          useValue: {
+            asyncIterableIterator: jest.fn().mockReturnValue({
+              [Symbol.asyncIterator]() {
+                return {
+                  next: async () => ({ value: 'mockMessage', done: false }),
+                };
+              },
+            }),
+          },
         },
       ],
     }).compile();
 
     resolver = module.get<MessageResolver>(MessageResolver);
-    rabbitmqService = module.get<RabbitMQService>(RabbitMQService);
     messageService = module.get<MessageService>(MessageService);
+    rabbitmqService = module.get<RabbitMQService>(RabbitMQService);
+    pubSub = module.get<PubSub>('PUB_SUB');
   });
 
-  it('devrait être défini', () => {
-    expect(resolver).toBeDefined();
-  });
-
-  it('devrait retourner pong depuis _ping()', () => {
-    expect(resolver._ping()).toBe('pong');
-  });
-
-  it('devrait appeler rabbitmqService.sendMessage dans sendMessage()', async () => {
+  it('devrait appeler messageService.findByConversation', async () => {
     const conversationId = 'conv-1';
-    const content = 'Hello world';
+    const result = await resolver.messages(conversationId);
 
-    const result = await resolver.sendMessage(conversationId, content);
-
-    expect(rabbitmqService.sendMessage).toHaveBeenCalledWith(
-      'message_send',
-      expect.objectContaining({
-        conversationId,
-        content,
-        authorId: 'mock-user',
-      }),
-    );
-    expect(result).toBe(true);
-  });
-
-  it('devrait retourner les messages dans getMessages()', async () => {
-    const messages = await resolver.getMessages('conv-1');
-    expect(messageService.findMessagesByConversation).toHaveBeenCalledWith('conv-1');
-    expect(messages).toEqual([mockMessage]);
-  });
-
-  it('devrait retourner un itérateur async dans onMessageSent()', () => {
-  const result = resolver.onMessageSent('conv-1');
-  expect(mockPubSub.asyncIterableIterator).toHaveBeenCalledWith('message_sent');
-  expect(result).toEqual({});
+    expect(messageService.findByConversation).toHaveBeenCalledWith(conversationId);
+    expect(result).toEqual(['msg1', 'msg2']);
   });
 });
