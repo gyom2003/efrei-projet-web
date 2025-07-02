@@ -2,6 +2,7 @@ import { useQuery, gql } from "@apollo/client";
 import { useState } from "react";
 import { Plus } from "react-bootstrap-icons";
 import styles from "./ButtonAddConversation.module.css";
+import type { Conversation } from "../../types";
 
 type User = {
   id: string;
@@ -20,11 +21,13 @@ const GET_USERS = gql`
 type ButtonAddConversationProps = {
   onAddConversation: (participantIds: string[]) => void;
   currentUserId: string;
+  existingConversations: Conversation[];
 };
 
 export default function ButtonAddConversation({
   onAddConversation,
   currentUserId,
+  existingConversations,
 }: ButtonAddConversationProps) {
   const { data, loading, error } = useQuery<{ users: User[] }>(GET_USERS);
   const [selectedUserId, setSelectedUserId] = useState<string>("");
@@ -32,8 +35,19 @@ export default function ButtonAddConversation({
   if (loading) return <p>Chargement des utilisateurs...</p>;
   if (error) return <p>Erreur lors du chargement des utilisateurs.</p>;
 
-  // Filtrer pour ne pas afficher l'utilisateur courant
-  const users = data?.users.filter((user) => user.id !== currentUserId) ?? [];
+  // Récupérer tous les userId avec qui on a déjà une conversation (autres que moi)
+  const usersAlreadyInConversation = new Set(
+    existingConversations
+      .map((conv) => conv.participants.find((p) => p.id !== currentUserId)?.id)
+      .filter(Boolean) as string[]
+  );
+
+  // Filtrer les utilisateurs pour enlever ceux déjà en conversation, et ne pas afficher soi-même
+  const availableUsers =
+    data?.users.filter(
+      (user) =>
+        user.id !== currentUserId && !usersAlreadyInConversation.has(user.id)
+    ) ?? [];
 
   const handleAddConversation = () => {
     if (!selectedUserId) return alert("Veuillez sélectionner un utilisateur.");
@@ -48,7 +62,7 @@ export default function ButtonAddConversation({
         onChange={(e) => setSelectedUserId(e.target.value)}
       >
         <option value="">-- Choisir un utilisateur --</option>
-        {users.map((user) => (
+        {availableUsers.map((user) => (
           <option key={user.id} value={user.id}>
             {user.username}
           </option>

@@ -36,6 +36,7 @@ export default function ListConversation({
         <ButtonAddConversation
           onAddConversation={onAddConversation}
           currentUserId={currentUserId}
+          existingConversations={conversations}
         />
       </div>
 
