@@ -53,11 +53,12 @@ export default function LoginForm() {
           required
           className={styles.input}
         />
-        <button type="submit" className="{styles.button}">Se connecter</button>
+        <button type="submit" className={styles.button}>
+          Se connecter
+        </button>
         <p className={styles.linkText}>
           Pas encore de compte ? <a href="/register">Inscrivez-vous ici</a>.
         </p>
-
       </form>
     </div>
   );
