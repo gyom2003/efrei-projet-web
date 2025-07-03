@@ -1,0 +1,22 @@
+.settingsContainer {
+  padding: 2rem;
+  max-width: 600px;
+  margin: 0 auto;
+  color: #222;
+}
+
+.title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.placeholder {
+  background-color: #fff3cd;
+  padding: 1rem;
+  border: 1px solid #ffeeba;
+  border-radius: 8px;
+  color: #856404;
+  text-align: center;
+}

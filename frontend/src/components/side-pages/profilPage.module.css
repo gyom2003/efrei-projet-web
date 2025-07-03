@@ -1,0 +1,33 @@
+.profileContainer {
+  padding: 2rem;
+  max-width: 600px;
+  margin: 0 auto;
+  color: #222;
+}
+
+.title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.card {
+  background-color: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  line-height: 1.6;
+}
+
+.loading {
+  text-align: center;
+  margin-top: 3rem;
+  color: gray;
+}
+
+.error {
+  text-align: center;
+  margin-top: 3rem;
+  color: red;
+}
