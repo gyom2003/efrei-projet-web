@@ -34,8 +34,11 @@
 }
 
 .messageAuthor {
-  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 3px;
   margin-bottom: 4px;
+  color: #000000;
 }
 
 .messageContent {
@@ -46,11 +49,11 @@
   font-size: 14px;
 }
 
-.messageContent.me {
+.me .messageContent {
   background-color: #25d366;
 }
 
-.messageContent.other {
+.other .messageContent {
   background-color: #d3d3d3;
 }
 
