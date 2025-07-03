@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useMutation } from "@apollo/client";
 import { gql } from "@apollo/client";
+import styles from "./registerForm.module.css";
+
 
 const REGISTER_USER = gql`
   mutation createUser($username: String!, $password: String!) {
@@ -29,23 +31,30 @@ export default function RegisterForm() {
   };
 
   return (
-    <form onSubmit={handleRegister}>
-      <h2>Inscription</h2>
-      <input
-        type="text"
-        placeholder="Nom d'utilisateur"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        required
-      />
-      <input
-        type="password"
-        placeholder="Mot de passe"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-      />
-      <button type="submit">S'inscrire</button>
-    </form>
+    <div className={styles.container}>
+      <form className={styles.form} onSubmit={handleRegister}>
+        <h2 className={styles.title}>Inscription</h2>
+        <input
+          type="text"
+          placeholder="Nom d'utilisateur"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+          className={styles.input}
+        />
+        <input
+          type="password"
+          placeholder="Mot de passe"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          className={styles.input}
+        />
+        <button type="submit" className={styles.button}>S'inscrire</button>
+        <p className={styles.linkText}>
+          Vous avez déjà un compte ? <a href="/login">Connectez-vous ici</a>.
+        </p>
+      </form>
+    </div>
   );
 }
