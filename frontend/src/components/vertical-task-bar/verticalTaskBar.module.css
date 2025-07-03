@@ -23,3 +23,13 @@ section {
   background-color: black;
   color: white;
 }
+
+.section-icon:hover {
+  background-color: black;
+  color: white;
+}
+
+.logout:hover {
+  background-color: #ff4d4f;
+  color: white;
+}

@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useSubscription } from "@apollo/client";
 import { useEffect, useState, useRef } from "react";
-import { Send } from "react-bootstrap-icons";
-import { jwtDecode } from "jwt-decode"; // corrigé import
+import { Send, Person } from "react-bootstrap-icons";
+import { jwtDecode } from "jwt-decode";
 import styles from "./Chat.module.css";
 import {
   GET_CONVERSATION,
@@ -127,7 +127,7 @@ export default function Chat({ conversationId }: Props) {
                   }`}
                 >
                   <div className={styles.messageAuthor}>
-                    {isMe ? "Moi" : author.username}
+                    <Person size={20} /> {isMe ? "Moi" : author.username}
                   </div>
                   <div className={styles.messageContent}>{content}</div>
                   <div className={styles.messageTime}>
