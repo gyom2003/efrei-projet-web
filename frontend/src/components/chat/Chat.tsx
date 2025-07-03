@@ -63,11 +63,12 @@ export default function Chat({ conversationId }: Props) {
   }, [subscriptionError]);
 
   // Charger les anciens messages uniquement si messages vide (premier chargement)
+  // Mettre à jour les messages à chaque changement de conversation
   useEffect(() => {
-    if (data?.conversation?.messages && messages.length === 0) {
+    if (data?.conversation?.messages) {
       setMessages(data.conversation.messages);
     }
-  }, [data]);
+  }, [data?.conversation?.id]);
 
   // Ajouter les nouveaux messages reçus en subscription sans doublon
   useEffect(() => {
