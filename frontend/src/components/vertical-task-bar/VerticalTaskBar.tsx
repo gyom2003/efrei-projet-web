@@ -15,22 +15,31 @@ export default function VerticalTaskBar() {
     navigate("/login");
   };
 
+  const handleClick = (id: number, path: string) => {
+    if (id === 3) {
+    handleLogout();
+  } else {
+    setSelected(id);
+    navigate(path);
+  }
+  }
+
   const icons = [
-    { id: 0, component: <Chat size={20} />, onClick: () => setSelected(0) },
-    { id: 1, component: <Person size={20} />, onClick: () => setSelected(1) },
-    { id: 2, component: <Gear size={20} />, onClick: () => setSelected(2) },
-    { id: 3, component: <BoxArrowLeft size={20} />, onClick: handleLogout },
+    { id: 0, component: <Chat size={20} />, path: "/home" },
+    { id: 1, component: <Person size={20} />, path: "/profile" },
+    { id: 2, component: <Gear size={20} />, path: "/settings" },
+    { id: 3, component: <BoxArrowLeft size={20} />, path: "/logout"  },
   ];
 
   return (
     <section>
-      {icons.map(({ id, component, onClick }) => (
+      {icons.map(({ id, component, path }) => (
         <div
           key={id}
           className={`${styles["section-icon"]} ${
             selected === id ? styles.selected : ""
           } ${id === 3 ? styles.logout : ""}`}
-          onClick={onClick}
+          onClick={() => handleClick(id, path)}
         >
           {component}
         </div>
