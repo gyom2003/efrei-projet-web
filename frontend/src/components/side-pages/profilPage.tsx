@@ -1,5 +1,7 @@
 import { useQuery, gql } from "@apollo/client";
 import { useEffect, useState } from "react";
+import { jwtDecode } from "jwt-decode";
+import VerticalTaskBar from "../vertical-task-bar/VerticalTaskBar";
 import styles from "./profilPage.module.css";
 
 const GET_USER = gql`
@@ -12,32 +14,64 @@ const GET_USER = gql`
   }
 `;
 
+type JwtPayload = {
+  sub: string;
+  username: string;
+  iat: number;
+  exp: number;
+};
+
 export default function ProfilePage() {
-  const [userId, setUserId] = useState<string | null>(null);
+  const token = localStorage.getItem("token");
+  const [decoded, setDecoded] = useState<JwtPayload | null>(null);
 
   useEffect(() => {
-    const id = localStorage.getItem("userId");
-    setUserId(id);
-  }, []);
+    if (token) {
+      try {
+        const decodedToken = jwtDecode<JwtPayload>(token);
+        setDecoded(decodedToken);
+      } catch (err) {
+        console.error("Erreur décodage token", err);
+      }
+    }
+  }, [token]);
 
-  const { data, loading, error } = useQuery(GET_USER, {
-    variables: { id: userId },
-    skip: !userId,
+  const { data, loading } = useQuery(GET_USER, {
+    variables: { id: decoded?.sub ?? "" },
+    skip: !decoded?.sub,
+    context: {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
   });
 
   if (loading) return <p className={styles.loading}>Chargement...</p>;
-  if (error || !data?.user) return <p className={styles.error}>Erreur ou utilisateur introuvable</p>;
 
-  const { user } = data;
+  const user = data?.user;
 
-  return (
-    <div className={styles.profileContainer}>
-      <h1 className={styles.title}>Profil utilisateur</h1>
-      <div className={styles.card}>
-        <p><strong>Nom d'utilisateur :</strong> {user.username}</p>
-        <p><strong>Email :</strong> {user.email}</p>
-        <p><strong>ID :</strong> {user.id}</p>
-        <p><strong>Créé le :</strong> {new Date(user.createdAt).toLocaleString()}</p>
+   return (
+    <div className={styles.layout}>
+      <VerticalTaskBar />
+      <div className={styles.profileContainer}>
+        <h1 className={styles.title}>Profil utilisateur</h1>
+
+        {loading && <p className={styles.loading}>Chargement...</p>}
+
+        {user ? (
+          <div className={styles.card}>
+            <p><strong>Nom d'utilisateur :</strong> {user.username}</p>
+            <p><strong>ID :</strong> {user.id}</p>
+            <p><strong>Créé le :</strong> {new Date(user.createdAt).toLocaleString()}</p>
+          </div>
+        ) : decoded ? (
+          <div className={styles.card}>
+            <p><strong>Nom d'utilisateur (JWT) :</strong> {decoded.username}</p>
+            <p><strong>ID (JWT) :</strong> {decoded.sub}</p>
+          </div>
+        ) : (
+          <p className={styles.error}>Aucun utilisateur authentifié.</p>
+        )}
       </div>
     </div>
   );

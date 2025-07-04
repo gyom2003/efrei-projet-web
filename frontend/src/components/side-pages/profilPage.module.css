@@ -1,8 +1,15 @@
+.layout {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+}
+
 .profileContainer {
+  flex: 1;
   padding: 2rem;
-  max-width: 600px;
-  margin: 0 auto;
+  max-width: 800px;
   color: #222;
+  overflow-y: auto;
 }
 
 .title {

@@ -14,7 +14,7 @@ export default function Router() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/settings" element={<ParameterPage />} />
-        <Route path="/profil" element={<ProfilePage />} />
+        <Route path="/profile" element={<ProfilePage />} />
         {/* Routes privées protégées */}
         <Route element={<RequireAuth />}>
           <Route path="/*" element={<App />} />
