@@ -4,11 +4,14 @@ import "./index.css";
 import Router from "./Router.tsx"; // <-- nouveau fichier Router
 import { ApolloProvider } from "@apollo/client";
 import { client } from "./ApolloClient.ts";
+import { ThemeProvider } from "./components/context/ThemeContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <ApolloProvider client={client}>
-      <Router />
-    </ApolloProvider>
-  </StrictMode>
+  <ThemeProvider>
+    <StrictMode>
+      <ApolloProvider client={client}>
+        <Router />
+      </ApolloProvider>
+    </StrictMode>
+  </ThemeProvider>
 );
