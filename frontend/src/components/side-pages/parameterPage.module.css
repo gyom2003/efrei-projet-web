@@ -1,0 +1,48 @@
+.layout {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+}
+
+.settingsContainer {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.title {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+}
+
+.section {
+  margin-bottom: 2rem;
+  padding: 1rem 1.5rem;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background-color: var(--bg-color, #f9f9f9);
+}
+
+.select {
+  padding: 0.5rem;
+  font-size: 1rem;
+  border-radius: 6px;
+  margin-top: 0.5rem;
+  cursor: not-allowed;
+}
+
+.note {
+  font-size: 0.9rem;
+  color: gray;
+  margin-top: 0.5rem;
+}
+
+.infoList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.infoList li {
+  margin-bottom: 0.4rem;
+}
